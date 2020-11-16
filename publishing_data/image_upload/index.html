@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>ImageUpload</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>
+        // jQuery import 바로아래에 넣어 주면 됩니다.
+        // Cannot read property 'msie' of undefined 에러 나올때
+        jQuery.browser = {};
+        (function () {
+            jQuery.browser.msie = false;
+            jQuery.browser.version = 0;
+            if (navigator.userAgent.match(/MSIE ([0-9]+)\./)) {
+                jQuery.browser.msie = true;
+                jQuery.browser.version = RegExp.$1;
+            }
+        })();
+    </script>
+
+    <link href="css/import.css" rel="stylesheet" type="text/css">
+
+    <style>
+
+        html, body {
+            line-height: 20px;
+        }
+
+        .wrap{
+            width: 100%;
+            padding: 30px;
+            box-sizing: border-box;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .wrap h1{
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .fileUpload {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            border: 1px solid #ededed;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .fileCover {
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: none;
+        }
+
+        .fileCover span {
+            width: 15px;
+            display: inline-block;
+            position: absolute;
+            top: 20px;
+            right: 15px;
+        }
+
+        .fileCover span img {
+            width: 100%;
+        }
+
+        .fileImg label {
+            width: 150px;
+            height: 130px;
+            display: inline-block;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            margin: auto;
+        }
+
+        .fileImg input[type='file'] {
+            display: none;
+        }
+
+        .fileImg figure {
+            text-align: center;
+        }
+
+        .fileImg figcaption {
+            font-size: 14px;
+        }
+
+        .fileImg figure img {
+            width: 80px;
+        }
+
+        .fileImg > img {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<article class="wrap">
+    <h1>이미지 업로드</h1>
+    <div class="fileUpload">
+        <div class="fileCover" v-on:mouseleave="fileMouseLeave">
+            <span v-on:click="fileReset"><img src="./images/x.png"></span>
+        </div>
+
+        <div class="fileImg">
+            <label>
+                <figure>
+                    <img src="./images/plus.png">
+                    <figcaption>
+                        썸네일 이미지 등록<br>
+                        가로 1080 x 세로 1080 px
+                    </figcaption>
+                </figure>
+                <input type="file" v-on:change="fileUpload" ref="contentUrl" name="contentUrl">
+            </label>
+            <img style="display: none" src="#" alt="uploadImg" v-on:mouseover="fileMouseOver">
+        </div>
+    </div>
+</article>
+
+<script type="text/javascript">
+    new Vue({
+        el: ".fileUpload",
+        methods: {
+            fileUpload: function (e) {
+                var obj = e.target;
+                if (obj.files && obj.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        var img = new Image();
+
+                        img.onload = function() {
+                            img.src = e.target.result;
+                            var imgWidth = this.width;
+                            var imgHeight = this.height;
+                            var fileText = obj.files[0].name.split(".").pop().toLowerCase();
+                            console.log(imgWidth )
+                        }
+                        $(obj).parents("label").siblings("img").attr("src", e.target.result);
+                        $(obj).parents("label").siblings("img").css("display", "block");
+                        $(obj).parents("label").css("display", "none");
+                    }
+                }
+                reader.readAsDataURL(obj.files[0]);
+                $(".fileUpload").css("height", "auto");
+            },
+            fileMouseOver: function () {
+                $(".fileCover").css("display", "block");
+            },
+            fileMouseLeave: function () {
+                $(".fileCover").css("display", "none");
+            },
+            fileReset: function (e) {
+                var obj = e.target;
+                $(".fileCover").css("display", "none");
+                $(obj).parents("span").parents(".fileCover").siblings(".fileImg").children("img").attr("src", "#");
+                $(obj).parents(".fileCover").siblings(".fileImg").children("img").css("display", "none");
+                $(obj).parents(".fileCover").siblings(".fileImg").children("label").css("display", "block");
+
+                if ($.browser.msie) {
+                    $(".fileImg input[type='file']").replaceWith($(".fileImg input[type='file']").clone(true));
+                } else {
+                    $(".fileImg input[type='file']").val("");
+                }
+
+                $(".fileUpload").css("height", "300px");
+            }
+        }
+    });
+</script>
+</body>
+</html>
